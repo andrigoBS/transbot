@@ -5,12 +5,16 @@ from src.chatbot.pln.helpers.database_pln import DatabasePLN
 from src.chatbot.pln.helpers.text_pln import TextPLN
 from src.chatbot.pln.vocabulary import Vocabulary
 
+singleton_database = DatabasePLN()
+singleton_text_pln = TextPLN()
+singleton_vocabulary = Vocabulary()
+
 
 class Chatbot:
     def __init__(self):
-        self.database = DatabasePLN()
-        self.text_pln = TextPLN()
-        self.vocabulary = Vocabulary()
+        self.database = singleton_database
+        self.text_pln = singleton_text_pln
+        self.vocabulary = singleton_vocabulary
         self.model = Sec2SecModel()
         self.questions = []
         self.answers = []

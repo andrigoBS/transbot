@@ -1,7 +1,22 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from src.chatbot.chatbot import Chatbot
-import random
 
+
+class ClientCount:
+    def __init__(self):
+        self.clients = 0
+
+    def new_client(self):
+        if self.clients >= 100000:
+            self.clients = 0
+        self.clients += 1
+        return self.clients
+
+    def get_clients(self):
+        return self.clients
+
+
+clients_controll = ClientCount()
 # TODO: titulo ajustar quando tiver nome, colocar no readme também, no package, manifest, env do site
 server = FastAPI(title="Transbot")
 
@@ -11,7 +26,7 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     chatbot = Chatbot()
     chatbot.load()
-    client_id = random.randint(1, 1000000)
+    client_id = clients_controll.new_client()
     print('New client connected. ID:', client_id)
     while True:
         try:

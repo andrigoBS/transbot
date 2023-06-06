@@ -62,6 +62,9 @@ class Vocabulary:
         return self.tokenizer.word_index
 
     def load(self):
+        if self.tokenizer is not None:
+            return
+
         with open(self.serialized_file_name, 'rb') as handle:
             data = pickle.load(handle)
             self.tokenizer = data["tokenizer"]
