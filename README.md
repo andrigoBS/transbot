@@ -12,6 +12,24 @@
 - Websocket
 - FastAPI
 
+## Install
+```bash
+pip install autocorrect
+pip install numpy
+pip install python-docx 
+pip install python-dotenv
+pip install -U pip setuptools wheel
+pip install -U spacy
+python -m spacy download pt_core_news_lg
+pip install Pillow
+pip install uvicorn
+pip install wasabi
+pip install websockets
+pip install keras
+pip install fastapi
+pip install tensorflow
+```
+
 ## Author
 
 - [Andrigo Borba dos Santos](https://github.com/andrigoBS)
