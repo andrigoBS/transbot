@@ -25,6 +25,7 @@ class Summary:
 
             line_width, line_height = font.getsize(max(self.summary))
         except:
+            print('No save summary')
             return self
 
         img_height = line_height * len(self.summary)

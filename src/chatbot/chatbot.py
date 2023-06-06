@@ -17,7 +17,7 @@ class Chatbot:
 
     def create(self, params: ModelParamsDTO):
         self.questions, self.answers = self.database.get_questions_and_answers()
-        self.questions = self.text_pln.clear_punctuation_and_tagging_phrases(
+        self.questions = self.text_pln.clear_and_tagging_phrases(
             self.questions,
             self.vocabulary.END_TAG
         )
@@ -31,9 +31,10 @@ class Chatbot:
                 max_phrase_size = length
                 max_phrase = phrase
 
-        print('Max length {} {}'.format(max_phrase_size, max_phrase))
+        print('Max phrase length: {} From: {}'.format(max_phrase_size, max_phrase))
         self.vocabulary.create(self.questions, self.answers, max_phrase_size)
         vocab_size = self.vocabulary.get_size()
+        print('Vocabulary Size: {}'.format(vocab_size))
         return self.model.create(max_phrase_size, vocab_size, params)
 
     def fit(self, params: ModelParamsDTO):
@@ -53,14 +54,29 @@ class Chatbot:
         )
         last_answer = self.vocabulary.phrase2ints(last_answer[0])
 
-        question = self.text_pln.clear_punctuation_phrase(question)
         new_phrase = []
-        for word in question.split():
+        for word_pln in self.text_pln.split_pln(question):
+            word = word_pln.text
             if not self.vocabulary.has_word(word):
+                print('Não tem no dicionário: {}'.format(word))
                 correct_word = self.text_pln.corrector(word)
+                print('Correção: {}'.format(correct_word))
                 if not self.vocabulary.has_word(correct_word):
-                    new_word = self.text_pln.get_more_similarity(correct_word, self.vocabulary.get_words())
-                    new_phrase.append(new_word)
+                    print('Não tem a correção: {}'.format(correct_word))
+                    new_word = self.text_pln.get_more_similarity(word, self.vocabulary.get_words())
+                    print('Similaridade: {}'.format(new_word))
+                    if not self.vocabulary.has_word(new_word):
+                        print('Não tem a similaridade: {}'.format(new_word))
+                        new_correct_word = self.text_pln.get_more_similarity(correct_word, self.vocabulary.get_words())
+                        print('Similaridade com a correção: {}'.format(new_correct_word))
+                        if not self.vocabulary.has_word(new_correct_word):
+                            print('Não tem a similaridade com a correção: {}'.format(new_correct_word))
+                        else:
+                            new_phrase.append(new_correct_word)
+                    else:
+                        new_phrase.append(new_word)
+                else:
+                    new_phrase.append(correct_word)
             else:
                 new_phrase.append(word)
         new_phrase = " ".join(new_phrase)

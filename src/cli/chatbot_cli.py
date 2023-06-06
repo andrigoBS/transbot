@@ -25,11 +25,11 @@ class ChatbotCli:
         result = self.chatbot.fit(self.params)
 
         print(result.history.keys())
-        self.history_report\
-            .set_history(result.history)\
-            .plot_accuracy()\
-            .plot_loss()\
-            .plot_precision()\
+        self.history_report \
+            .set_history(result.history) \
+            .plot_accuracy() \
+            .plot_loss() \
+            .plot_precision() \
             .plot_recall()
 
     def main(self):
@@ -38,7 +38,7 @@ class ChatbotCli:
         last_result = ''
         while sentence not in ['adeus', 'tchau', 'bye', 'falou', 'flw']:
             last_result = self.chatbot.execute(sentence, last_result)
-            print('Chatbot: '+last_result)
+            print('Chatbot: ' + last_result)
             sentence = input('Você : ')
 
 
