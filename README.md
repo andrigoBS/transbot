@@ -22,12 +22,26 @@ pip install -U pip setuptools wheel
 pip install -U spacy
 python -m spacy download pt_core_news_lg
 pip install Pillow
-pip install uvicorn
 pip install wasabi
 pip install websockets
 pip install keras
 pip install fastapi
 pip install tensorflow
+```
+```bash
+pip install uvicorn
+OR
+pip install 'uvicorn[standard]'
+```
+
+## RUN
+Fit and Run on cli
+```bash
+python3 -m ./src/cli/chatbot_cli.py
+```
+Websocket
+```bash
+python3 -m uvicorn src.api.start:server
 ```
 
 ## Author
