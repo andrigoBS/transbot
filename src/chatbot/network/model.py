@@ -59,6 +59,8 @@ class Sec2SecModel:
 
         state_h = keras.layers.Concatenate()([forward_h, backward_h])
         state_c = keras.layers.Concatenate()([forward_c, backward_c])
+        state_h = keras.layers.Dense(max_phrase_size, activation='sigmoid')(state_h)
+        state_c = keras.layers.Dense(max_phrase_size, activation='sigmoid')(state_c)
 
         encoder_states = [state_h, state_c]
 
@@ -68,7 +70,7 @@ class Sec2SecModel:
         concatened = keras.layers.AdditiveAttention()([decoder_inputs, encoder_outputs])
         decoder_embedding = keras.layers.Embedding(vocab_size, max_phrase_size, mask_zero=True)(concatened)
 
-        decoder_lstm = keras.layers.LSTM(max_phrase_size * 2, return_state=True, return_sequences=True)
+        decoder_lstm = keras.layers.LSTM(max_phrase_size, return_state=True, return_sequences=True)
         decoder_outputs, _, _ = decoder_lstm(decoder_embedding, initial_state=encoder_states)
 
         return decoder_outputs

@@ -21,13 +21,10 @@ class Vocabulary:
     def phrases2data(self, questions, answers):
         tokenized_questions = self.tokenizer.texts_to_sequences(questions)
         tokenized_answers = self.tokenizer.texts_to_sequences(answers)
+        tokenized_last_answer = self.tokenizer.texts_to_sequences([self.END_TAG])
 
         encoder_input_data = self.__pad_sequences(tokenized_questions)
-        decoder_input_data = self.__pad_sequences(tokenized_answers)
-
-        for i in range(len(tokenized_answers)):
-            tokenized_answers[i] = tokenized_answers[i][1:]
-
+        decoder_input_data = self.__pad_sequences(tokenized_last_answer + tokenized_answers[:len(tokenized_answers)-1])
         padded_answers = self.__pad_sequences(tokenized_answers)
         decoder_output_data = to_categorical(padded_answers, self.get_size())
 
