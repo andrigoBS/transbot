@@ -16,6 +16,7 @@ class TextPLN:
         return list(map(clear_and_tag_item, phrases))
 
     def clear_phrase(self, phrase):
+        phrase = phrase.lower()
         phrase = re.sub('  +', ' ', phrase)
         phrase = re.sub('\w\.[ \n]', ' . ', phrase)
         return phrase
