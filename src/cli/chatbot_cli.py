@@ -1,5 +1,4 @@
 from src.chatbot.chatbot import Chatbot
-from src.chatbot.network.dto.model_params_dto import ModelParamsDTO
 from src.cli.reports.history import History
 from src.cli.reports.summary import Summary
 from src.file_path_helper import FilePathHelper
@@ -10,10 +9,9 @@ class ChatbotCli:
         self.chatbot = Chatbot()
         self.summary_report = Summary()
         self.history_report = History()
-        self.params = ModelParamsDTO()
 
-    def fit(self):
-        summary = self.chatbot.create(self.params)
+    def fit(self, epochs=100):
+        summary = self.chatbot.create()
 
         self.summary_report.set_summary(summary).plot_img()
 
@@ -22,7 +20,7 @@ class ChatbotCli:
 
         self.chatbot.plot_model(FilePathHelper().get_reports_file_path('schema'))
 
-        result = self.chatbot.fit(self.params)
+        result = self.chatbot.fit(epochs, ['accuracy', 'Precision', 'Recall'])
 
         print(result.history.keys())
         self.history_report \

@@ -5,20 +5,17 @@ import glob
 from src.file_path_helper import FilePathHelper
 
 
-class DatabasePLN:
-    def __init__(self):
-        self.converastions = []
+class Conversations:
+    def __init__(self, text_pln):
+        self.conversations = []
+        self.max_phrase_size = 0
+        self.text_pln = text_pln
 
-    def get_questions_and_answers(self):
-        if len(self.converastions) == 0:
-            self.__load()
-
-        random.shuffle(self.converastions)
-
+    def get_all_questions_and_answers(self):
         questions = []
         answers = []
 
-        for item in self.converastions:
+        for item in self.conversations:
             questions += item['questions']
             answers += item['answers']
 
@@ -26,19 +23,31 @@ class DatabasePLN:
 
         return questions, answers
 
-    def __load(self):
-        list_of_files = glob.glob(FilePathHelper().get_base_file_path(), recursive=True)
+    def load_and_process(self, end_tag):
+        if len(self.conversations) != 0:
+            return
 
+        list_of_files = glob.glob(FilePathHelper().get_base_file_path(), recursive=True)
         print('Read {} files'.format(len(list_of_files)))
 
         for path in list_of_files:
             print(path)
             together = self.__read_file(path)
             questions, answers = self.__split_questions_answers(together, path)
-            if len(questions) > 0:
-                self.converastions.append({'questions': questions, 'answers': answers})
 
-        print('conversations: {}'.format(len(self.converastions)))
+            if len(questions) > 0:
+                questions = self.text_pln.clear_and_tagging_phrases(questions, end_tag)
+                answers = self.text_pln.clear_and_tagging_phrases(answers, end_tag)
+
+                self.conversations.append({'questions': questions, 'answers': answers})
+
+        print('conversations: {}'.format(len(self.conversations)))
+
+    def get_questions_and_answers_of_index(self, conversation_index):
+        return self.conversations[conversation_index]['questions'], self.conversations[conversation_index]['answers']
+
+    def get_size(self):
+        return len(self.conversations)
 
     def __read_file(self, path):
         f = open(path, 'rb')

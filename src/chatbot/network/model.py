@@ -1,8 +1,7 @@
+import random
 import keras.layers
 import keras.utils
 
-from src.chatbot.network.dto.model_fit_data_dto import ModelFitDataDTO
-from src.chatbot.network.dto.model_params_dto import ModelParamsDTO
 from src.file_path_helper import FilePathHelper
 
 
@@ -17,9 +16,9 @@ class Sec2SecModel:
     def predict_phrase(self, phrase_sequence, target_seq):
         return self.model.predict([phrase_sequence, target_seq])
 
-    def create(self, max_phrase_size, vocab_size, params: ModelParamsDTO):
-        encoder_inputs = keras.layers.Input(shape=(max_phrase_size, vocab_size), batch_size=params.batch_size)
-        decoder_inputs = keras.layers.Input(shape=(max_phrase_size, vocab_size), batch_size=params.batch_size)
+    def create(self, max_phrase_size, vocab_size):
+        encoder_inputs = keras.layers.Input(shape=(max_phrase_size, vocab_size), batch_size=1)
+        decoder_inputs = keras.layers.Input(shape=(max_phrase_size, vocab_size), batch_size=1)
 
         encoder_outputs, encoder_states = self.__create_encoder(encoder_inputs, max_phrase_size)
         decoder_outputs = self.__create_decoder(decoder_inputs, encoder_states, max_phrase_size)
@@ -31,15 +30,25 @@ class Sec2SecModel:
         self.model.summary(print_fn=lambda line: summary.append(line))
         return summary
 
-    def fit(self, model_fit_data_dto: ModelFitDataDTO, params: ModelParamsDTO):
-        self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=params.metrics)
-        history = self.model.fit(
-            [model_fit_data_dto.encoder_input_data, model_fit_data_dto.decoder_input_data],
-            model_fit_data_dto.decoder_output_data,
-            epochs=params.epochs,
-            batch_size=params.batch_size,
-            validation_split=params.validation_split,
-            shuffle=params.shuffle
+    def fit(self, get_conversation_data, conversations_size, epochs, metrics):
+        def data_generator():
+            conversations = []
+            for i in range(conversations_size):
+                conversations.append(get_conversation_data(i))
+
+            while True:
+                random.shuffle(conversations)
+                for conversation in conversations:
+                    encoder_input_data, decoder_input_data, decoder_output_data = conversation
+                    for i in range(len(encoder_input_data)):
+                        yield [encoder_input_data[i:i+1], decoder_input_data[i:i+1]], decoder_output_data[i:i+1]
+
+        self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=metrics)
+        history = self.model.fit_generator(
+            data_generator(),
+            epochs=epochs,
+            steps_per_epoch=conversations_size,
+            shuffle=False
         )
 
         self.model.save(self.model_path_name)
@@ -84,5 +93,4 @@ class Sec2SecModel:
     def __create_exit_layer(self, decoder_outputs, vocab_size):
         dense_layer = keras.layers.Dense(vocab_size, activation='softmax')
         dense_outputs = keras.layers.TimeDistributed(dense_layer)(decoder_outputs)
-        # dense_outputs = dense_layer(decoder_outputs)
         return dense_outputs
