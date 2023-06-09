@@ -30,7 +30,7 @@ class Sec2SecModel:
         self.model.summary(print_fn=lambda line: summary.append(line))
         return summary
 
-    def fit(self, get_conversation_data, conversations_size, epochs, metrics):
+    def fit(self, get_conversation_data, conversations_size, steps_per_epoch, epochs, metrics):
         def data_generator():
             conversations = []
             for i in range(conversations_size):
@@ -47,7 +47,7 @@ class Sec2SecModel:
         history = self.model.fit_generator(
             data_generator(),
             epochs=epochs,
-            steps_per_epoch=conversations_size,
+            steps_per_epoch=steps_per_epoch,
             shuffle=False
         )
 

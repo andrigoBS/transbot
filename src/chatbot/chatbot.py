@@ -10,6 +10,8 @@ singleton_vocabulary = Vocabulary()
 
 class Chatbot:
     def __init__(self):
+        self.questions_len = 0
+
         self.text_pln = singleton_text_pln
         self.vocabulary = singleton_vocabulary
         self.conversations = singleton_conversations
@@ -19,6 +21,8 @@ class Chatbot:
     def create(self):
         self.conversations.load_and_process(self.vocabulary.END_TAG)
         questions, answers = self.conversations.get_all_questions_and_answers()
+
+        self.questions_len = len(questions)
 
         max_phrase_size = 0
         max_phrase = ''
@@ -40,7 +44,7 @@ class Chatbot:
             questions, answers = self.conversations.get_questions_and_answers_of_index(index)
             return self.vocabulary.phrases2data(questions, answers)
 
-        return self.model.fit(get_conversation_data, self.conversations.get_size(), epochs, metrics)
+        return self.model.fit(get_conversation_data, self.conversations.get_size(), self.questions_len, epochs, metrics)
 
     def execute(self, question, last_answer):
         last_answer = self.text_pln.clear_and_tagging_phrases(
