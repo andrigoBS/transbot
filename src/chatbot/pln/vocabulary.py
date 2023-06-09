@@ -19,20 +19,19 @@ class Vocabulary:
         self.save()
 
     def phrases2data(self, questions, answers):
-        tokenized_questions = self.tokenizer.texts_to_sequences(questions)
-        tokenized_answers = self.tokenizer.texts_to_sequences(answers)
-        tokenized_last_answer = self.tokenizer.texts_to_sequences([self.END_TAG])
-
-        encoder_input_data = self.__pad_sequences(tokenized_questions)
-        decoder_input_data = self.__pad_sequences(tokenized_last_answer + tokenized_answers[:len(tokenized_answers)-1])
-        padded_answers = self.__pad_sequences(tokenized_answers)
-        decoder_output_data = to_categorical(padded_answers, self.get_size())
+        encoder_input_data = self.phrases2ints(questions)
+        decoder_input_data = self.phrases2ints([self.END_TAG] + answers[:len(answers)-1])
+        decoder_output_data = self.phrases2ints(answers)
 
         return encoder_input_data, decoder_input_data, decoder_output_data
 
+    def phrases2ints(self, phrases):
+        tokens_list = self.tokenizer.texts_to_sequences(phrases)
+        padded_phrase = self.__pad_sequences(tokens_list)
+        return to_categorical(padded_phrase, self.get_size())
+
     def phrase2ints(self, phrase):
-        tokens_list = self.tokenizer.texts_to_sequences([phrase])
-        return self.__pad_sequences(tokens_list)
+        return self.phrases2ints([phrase])
 
     def ints2words(self, ints):
         words = []

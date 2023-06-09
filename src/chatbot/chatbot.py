@@ -56,7 +56,7 @@ class Chatbot:
             [last_answer],
             self.vocabulary.END_TAG
         )
-        last_answer = self.vocabulary.phrase2ints(last_answer[0])
+        last_answer = self.vocabulary.phrases2ints(last_answer)
 
         new_phrase = []
         for word_pln in self.text_pln.split_pln(question):
