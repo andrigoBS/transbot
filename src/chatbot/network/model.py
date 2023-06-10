@@ -17,11 +17,11 @@ class Sec2SecModel:
         return self.model.predict([phrase_sequence, target_seq])
 
     def create(self, max_phrase_size, vocab_size):
-        encoder_inputs = keras.layers.Input(shape=(max_phrase_size, vocab_size), batch_size=1)
-        decoder_inputs = keras.layers.Input(shape=(max_phrase_size, vocab_size), batch_size=1)
+        encoder_inputs = keras.layers.Input(shape=(max_phrase_size, ), batch_size=1)
+        decoder_inputs = keras.layers.Input(shape=(max_phrase_size, ), batch_size=1)
 
-        encoder_outputs, encoder_states = self.__create_encoder(encoder_inputs, max_phrase_size)
-        decoder_outputs = self.__create_decoder(decoder_inputs, encoder_states, max_phrase_size)
+        encoder_outputs, encoder_states = self.__create_encoder(encoder_inputs, max_phrase_size, vocab_size)
+        decoder_outputs = self.__create_decoder(decoder_inputs, encoder_states, max_phrase_size, vocab_size)
         attention = self.__create_attention(encoder_outputs, decoder_outputs, max_phrase_size)
         dense_outputs = self.__create_exit_layer(attention, vocab_size)
 
@@ -57,13 +57,15 @@ class Sec2SecModel:
     def plot_model(self, file_name):
         keras.utils.plot_model(self.model, show_shapes=True, to_file=file_name)
 
-    def __create_encoder(self, encoder_inputs, max_phrase_size):
+    def __create_encoder(self, encoder_inputs, max_phrase_size, vocab_size):
+        embedd = keras.layers.Embedding(input_dim=vocab_size, output_dim=max_phrase_size, input_length=max_phrase_size)
         encoder_lstm = keras.layers.LSTM(
             max_phrase_size, return_state=True, return_sequences=True, recurrent_initializer='glorot_uniform'
         )
         bidirectional_lstm = keras.layers.Bidirectional(encoder_lstm, merge_mode='sum')
 
-        encoder_outputs, forward_h, forward_c, backward_h, backward_c = bidirectional_lstm(encoder_inputs)
+        embedding_output = embedd(encoder_inputs)
+        encoder_outputs, forward_h, forward_c, backward_h, backward_c = bidirectional_lstm(embedding_output)
 
         state_h = keras.layers.Concatenate()([forward_h, backward_h])
         state_c = keras.layers.Concatenate()([forward_c, backward_c])
@@ -83,11 +85,13 @@ class Sec2SecModel:
 
         return output
 
-    def __create_decoder(self, decoder_inputs, encoder_states, max_phrase_size):
+    def __create_decoder(self, decoder_inputs, encoder_states, max_phrase_size, vocab_size):
+        embedd = keras.layers.Embedding(input_dim=vocab_size, output_dim=max_phrase_size, input_length=max_phrase_size)
         decoder_lstm = keras.layers.LSTM(
             max_phrase_size, return_sequences=True, recurrent_initializer='glorot_uniform'
         )
-        decoder_outputs = decoder_lstm(decoder_inputs, initial_state=encoder_states)
+        embedding_output = embedd(decoder_inputs)
+        decoder_outputs = decoder_lstm(embedding_output, initial_state=encoder_states)
         return decoder_outputs
 
     def __create_exit_layer(self, decoder_outputs, vocab_size):

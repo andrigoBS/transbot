@@ -10,6 +10,7 @@ class Conversations:
         self.conversations = []
         self.max_phrase_size = 0
         self.text_pln = text_pln
+        self.questions_len = 0
 
     def get_all_questions_and_answers(self):
         questions = []
@@ -20,6 +21,8 @@ class Conversations:
             answers += item['answers']
 
         print("questions: {}, answers: {}".format(len(questions), len(answers)))
+
+        self.questions_len = len(questions)
 
         return questions, answers
 
@@ -48,6 +51,9 @@ class Conversations:
 
     def get_size(self):
         return len(self.conversations)
+
+    def get_questions_len(self):
+        return self.questions_len
 
     def __read_file(self, path):
         f = open(path, 'rb')

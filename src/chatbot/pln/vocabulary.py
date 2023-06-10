@@ -20,15 +20,18 @@ class Vocabulary:
 
     def phrases2data(self, questions, answers):
         encoder_input_data = self.phrases2ints(questions)
+
         decoder_input_data = self.phrases2ints([self.END_TAG] + answers[:len(answers)-1])
+
         decoder_output_data = self.phrases2ints(answers)
+        decoder_output_data = to_categorical(decoder_output_data, self.get_size())
 
         return encoder_input_data, decoder_input_data, decoder_output_data
 
     def phrases2ints(self, phrases):
         tokens_list = self.tokenizer.texts_to_sequences(phrases)
         padded_phrase = self.__pad_sequences(tokens_list)
-        return to_categorical(padded_phrase, self.get_size())
+        return padded_phrase
 
     def phrase2ints(self, phrase):
         return self.phrases2ints([phrase])
