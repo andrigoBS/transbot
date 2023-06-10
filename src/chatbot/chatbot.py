@@ -1,3 +1,4 @@
+import re
 from src.chatbot.network.model import Sec2SecModel
 from src.chatbot.pln.conversations import Conversations
 from src.chatbot.pln.helpers.text_pln import TextPLN
@@ -35,7 +36,7 @@ class Chatbot:
 
         return self.model.create(max_phrase_size, vocab_size)
 
-    def fit(self, epochs, metrics):
+    def fit(self, epochs, metrics, continue_fit=True):
         def get_conversation_data(index):
             questions, answers = self.conversations.get_questions_and_answers_of_index(index)
             return self.vocabulary.phrases2data(questions, answers)
@@ -45,7 +46,8 @@ class Chatbot:
             self.conversations.get_size(),
             self.conversations.get_questions_len(),
             epochs,
-            metrics
+            metrics,
+            continue_fit
         )
 
     def execute(self, question, last_answer):

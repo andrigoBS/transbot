@@ -10,17 +10,20 @@ class ChatbotCli:
         self.summary_report = Summary()
         self.history_report = History()
 
-    def fit(self, epochs=100):
-        summary = self.chatbot.create()
+    def fit(self, epochs=100, continue_fit=False):
+        if not continue_fit:
+            summary = self.chatbot.create()
 
-        self.summary_report.set_summary(summary).plot_img()
+            self.summary_report.set_summary(summary).plot_img()
 
-        summary_string = self.summary_report.get_text()
-        print(summary_string)
+            summary_string = self.summary_report.get_text()
+            print(summary_string)
 
-        self.chatbot.plot_model(FilePathHelper().get_reports_file_path('schema'))
+            self.chatbot.plot_model(FilePathHelper().get_reports_file_path('schema'))
+        else:
+            self.chatbot.load()
 
-        result = self.chatbot.fit(epochs, ['accuracy', 'Precision', 'Recall'])
+        result = self.chatbot.fit(epochs, ['accuracy', 'Precision', 'Recall'], continue_fit)
 
         print(result.history.keys())
         self.history_report \

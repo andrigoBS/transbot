@@ -30,7 +30,7 @@ class Sec2SecModel:
         self.model.summary(print_fn=lambda line: summary.append(line))
         return summary
 
-    def fit(self, get_conversation_data, conversations_size, steps_per_epoch, epochs, metrics):
+    def fit(self, get_conversation_data, conversations_size, steps_per_epoch, epochs, metrics, continue_fit=True):
         def data_generator():
             conversations = []
             for i in range(conversations_size):
@@ -43,7 +43,8 @@ class Sec2SecModel:
                     for i in range(len(encoder_input_data)):
                         yield [encoder_input_data[i:i+1], decoder_input_data[i:i+1]], decoder_output_data[i:i+1]
 
-        self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=metrics)
+        if not continue_fit:
+            self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=metrics)
         history = self.model.fit_generator(
             data_generator(),
             epochs=epochs,
