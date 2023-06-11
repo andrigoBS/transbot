@@ -37,6 +37,10 @@ class Chatbot:
         return self.model.create(max_phrase_size, vocab_size)
 
     def fit(self, epochs, metrics, continue_fit=True):
+        if continue_fit:
+            self.conversations.load_and_process(self.vocabulary.END_TAG)
+            self.conversations.get_all_questions_and_answers()
+
         def get_conversation_data(index):
             questions, answers = self.conversations.get_questions_and_answers_of_index(index)
             return self.vocabulary.phrases2data(questions, answers)
