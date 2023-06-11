@@ -45,10 +45,13 @@ class Sec2SecModel:
 
         if not continue_fit:
             self.model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=metrics)
-        history = self.model.fit_generator(
+
+        history = self.model.fit(
             data_generator(),
+            validation_data=data_generator(),
             epochs=epochs,
-            steps_per_epoch=steps_per_epoch,
+            steps_per_epoch=steps_per_epoch * 0.75,
+            validation_steps=steps_per_epoch * 0.25,
             shuffle=False
         )
 
